@@ -23,13 +23,13 @@ const TaskCard = ({
     setIsCompleting(true);
     
     // Add celebration animation for high-priority tasks
-    if (!task.completed && task.priority === "high") {
+if (!(task.completed_c || task.completed) && (task.priority_c || task.priority) === "high") {
       // Create confetti effect
       createConfetti();
     }
     
     // Call the toggle function
-    await onToggleComplete?.(task.Id);
+await onToggleComplete?.(task.Id);
     
     setTimeout(() => {
       setIsCompleting(false);
@@ -96,7 +96,7 @@ const TaskCard = ({
       className={cn(
         "group bg-white rounded-xl shadow-sm border border-gray-100 p-4 transition-all duration-200",
         "hover:shadow-md hover:border-gray-200",
-        task.completed && "opacity-60",
+(task.completed_c || task.completed) && "opacity-60",
         isCompleting && "task-complete-animation",
         className
       )}
@@ -120,26 +120,26 @@ const TaskCard = ({
             <div className="flex-1 min-w-0">
               <h3 className={cn(
                 "text-base font-semibold text-gray-900 mb-1",
-                task.completed && "line-through text-gray-500"
+(task.completed_c || task.completed) && "line-through text-gray-500"
               )}>
-                {task.title}
+                {task.title_c || task.title}
               </h3>
               
-              {task.description && (
+{(task.description_c || task.description) && (
                 <p className={cn(
                   "text-sm text-gray-600 mb-2 line-clamp-2",
-                  task.completed && "line-through text-gray-400"
+                  (task.completed_c || task.completed) && "line-through text-gray-400"
                 )}>
                   {task.description}
                 </p>
               )}
 
-              <div className="flex items-center space-x-2 text-xs text-gray-500">
-                <span>Created {format(new Date(task.createdAt), "MMM d, yyyy")}</span>
-                {task.completedAt && (
+<div className="flex items-center space-x-2 text-xs text-gray-500">
+                <span>Created {format(new Date(task.CreatedOn || task.createdAt), "MMM d, yyyy")}</span>
+                {(task.completed_at_c || task.completedAt) && (
                   <>
                     <span>•</span>
-                    <span>Completed {format(new Date(task.completedAt), "MMM d, yyyy")}</span>
+                    <span>Completed {format(new Date(task.completed_at_c || task.completedAt), "MMM d, yyyy")}</span>
                   </>
                 )}
               </div>
@@ -148,10 +148,10 @@ const TaskCard = ({
             {/* Priority Badge */}
             <div className="flex-shrink-0 ml-2">
               <Badge
-                variant={task.priority}
+variant={task.priority_c || task.priority}
                 size="sm"
                 style={{ 
-                  backgroundColor: getPriorityColor(task.priority),
+                  backgroundColor: getPriorityColor(task.priority_c || task.priority),
                   color: "white"
                 }}
               >
@@ -165,7 +165,7 @@ const TaskCard = ({
             <div className="flex items-center space-x-2">
               <div 
                 className="px-2 py-1 rounded-md text-xs font-medium text-white"
-                style={{ backgroundColor: getCategoryColor(task.category) }}
+style={{ backgroundColor: getCategoryColor(task.category_c || task.category) }}
               >
                 {task.category}
               </div>
@@ -181,14 +181,14 @@ const TaskCard = ({
                   className="flex items-center space-x-1"
                 >
                   <button
-                    onClick={() => onEdit?.(task)}
+onClick={() => onEdit?.(task)}
                     className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary hover:bg-opacity-10 rounded-lg transition-colors duration-200"
                   >
                     <ApperIcon name="Edit2" size={14} />
                   </button>
                   
                   <button
-                    onClick={() => onDelete?.(task.Id)}
+onClick={() => onDelete?.(task.Id)}
                     className="p-1.5 text-gray-400 hover:text-error hover:bg-error hover:bg-opacity-10 rounded-lg transition-colors duration-200"
                   >
                     <ApperIcon name="Trash2" size={14} />

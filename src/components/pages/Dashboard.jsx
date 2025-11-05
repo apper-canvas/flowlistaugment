@@ -64,20 +64,20 @@ const Dashboard = () => {
   };
 
   const handleToggleComplete = async (taskId) => {
-    const task = tasks.find(t => t.Id === taskId);
+const task = tasks.find(t => t.Id === taskId);
     if (!task) return;
 
     try {
-      const updatedTask = await taskService.update(taskId, {
-        completed: !task.completed
+const updatedTask = await taskService.update(taskId, {
+        completed_c: !(task.completed_c || task.completed)
       });
       
-      setTasks(prevTasks =>
+setTasks(prevTasks =>
         prevTasks.map(t => t.Id === taskId ? updatedTask : t)
       );
       
       if (updatedTask.completed) {
-        if (task.priority === "high") {
+if ((task.priority_c || task.priority) === "high") {
           toast.success("🎉 High-priority task completed! Great work!");
         } else {
           toast.success("✅ Task completed!");
@@ -99,7 +99,7 @@ const Dashboard = () => {
     if (!editingTask) return;
     
     try {
-      const updatedTask = await taskService.update(editingTask.Id, taskData);
+const updatedTask = await taskService.update(editingTask.Id, taskData);
       setTasks(prevTasks =>
         prevTasks.map(t => t.Id === editingTask.Id ? updatedTask : t)
       );
@@ -120,7 +120,7 @@ const Dashboard = () => {
 
     try {
       await taskService.delete(taskId);
-      setTasks(prevTasks => prevTasks.filter(t => t.Id !== taskId));
+setTasks(prevTasks => prevTasks.filter(t => t.Id !== taskId));
       updateCategoryTaskCounts(tasks.filter(t => t.Id !== taskId));
       toast.success("Task deleted successfully");
     } catch (error) {
@@ -141,8 +141,8 @@ const Dashboard = () => {
     return <Error message={error} onRetry={handleRetry} />;
   }
 
-  const activeTasks = tasks.filter(task => !task.completed);
-  const completedTasks = tasks.filter(task => task.completed);
+const activeTasks = tasks.filter(task => !(task.completed_c || task.completed));
+  const completedTasks = tasks.filter(task => (task.completed_c || task.completed));
 
   return (
     <div className="flex-1 flex flex-col min-h-0">

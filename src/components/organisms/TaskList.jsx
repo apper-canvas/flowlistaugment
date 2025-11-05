@@ -22,37 +22,37 @@ const TaskList = ({
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(task => 
-        task.title.toLowerCase().includes(query) ||
-        task.description.toLowerCase().includes(query)
+filtered = filtered.filter(task => 
+        (task.title_c || task.title || "").toLowerCase().includes(query) ||
+        (task.description_c || task.description || "").toLowerCase().includes(query)
       );
     }
 
     // Filter by category
     if (selectedCategory !== "all") {
-      filtered = filtered.filter(task => task.category === selectedCategory);
+filtered = filtered.filter(task => (task.category_c || task.category) === selectedCategory);
     }
 
     // Filter by priority
     if (selectedPriority !== "all") {
-      filtered = filtered.filter(task => task.priority === selectedPriority);
+filtered = filtered.filter(task => (task.priority_c || task.priority) === selectedPriority);
     }
 
     // Filter by completion status
-    if (!showCompleted) {
+if (!showCompleted) {
       filtered = filtered.filter(task => !task.completed);
     }
 
     // Sort tasks: incomplete first, then by priority, then by creation date
     filtered.sort((a, b) => {
       // Incomplete tasks first
-      if (a.completed !== b.completed) {
-        return a.completed ? 1 : -1;
+if ((a.completed_c || a.completed) !== (b.completed_c || b.completed)) {
+        return (a.completed_c || a.completed) ? 1 : -1;
       }
 
       // Then by priority
       const priorityOrder = { high: 3, medium: 2, low: 1 };
-      const aPriority = priorityOrder[a.priority] || 0;
+const aPriority = priorityOrder[a.priority_c || a.priority] || 0;
       const bPriority = priorityOrder[b.priority] || 0;
       
       if (aPriority !== bPriority) {
@@ -60,14 +60,14 @@ const TaskList = ({
       }
 
       // Finally by creation date (newest first)
-      return new Date(b.createdAt) - new Date(a.createdAt);
+return new Date(b.CreatedOn || b.createdAt) - new Date(a.CreatedOn || a.createdAt);
     });
 
     return filtered;
   }, [tasks, searchQuery, selectedCategory, selectedPriority, showCompleted]);
 
-  const activeTasks = filteredTasks.filter(task => !task.completed);
-  const completedTasks = filteredTasks.filter(task => task.completed);
+const activeTasks = filteredTasks.filter(task => !(task.completed_c || task.completed));
+  const completedTasks = filteredTasks.filter(task => (task.completed_c || task.completed));
 
   if (filteredTasks.length === 0) {
     const getEmptyStateProps = () => {
@@ -125,7 +125,7 @@ const TaskList = ({
             <AnimatePresence mode="popLayout">
               {activeTasks.map((task) => (
                 <TaskCard
-                  key={task.Id}
+key={task.Id}
                   task={task}
                   onToggleComplete={onToggleComplete}
                   onEdit={onEditTask}
@@ -156,7 +156,7 @@ const TaskList = ({
             <AnimatePresence mode="popLayout">
               {completedTasks.map((task) => (
                 <TaskCard
-                  key={task.Id}
+key={task.Id}
                   task={task}
                   onToggleComplete={onToggleComplete}
                   onEdit={onEditTask}

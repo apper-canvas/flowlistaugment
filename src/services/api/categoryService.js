@@ -1,95 +1,232 @@
-import categoriesData from "@/services/mockData/categories.json";
+import { getApperClient } from '@/services/apperClient';
+import { toast } from 'react-toastify';
 
 class CategoryService {
   constructor() {
-    this.storageKey = "flowlist_categories";
-    this.categories = this.loadFromStorage();
-  }
-
-  loadFromStorage() {
-    const stored = localStorage.getItem(this.storageKey);
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (error) {
-        console.error("Error parsing stored categories:", error);
-      }
-    }
-    // Initialize with default data if nothing in storage
-    const defaultCategories = [...categoriesData];
-    this.saveToStorage(defaultCategories);
-    return defaultCategories;
-  }
-
-  saveToStorage(categories) {
-    localStorage.setItem(this.storageKey, JSON.stringify(categories));
-  }
-
-  delay() {
-    return new Promise(resolve => setTimeout(resolve, Math.random() * 300 + 200));
+    this.tableName = 'category_c';
   }
 
   async getAll() {
-    await this.delay();
-    return [...this.categories];
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error('ApperClient not available');
+      }
+
+      const response = await apperClient.fetchRecords(this.tableName, {
+        fields: [
+          {"field": {"Name": "Id"}},
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "color_c"}},
+          {"field": {"Name": "task_count_c"}}
+        ]
+      });
+
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching categories:", error?.response?.data?.message || error.message);
+      toast.error("Failed to load categories");
+      return [];
+    }
   }
 
   async getById(id) {
-    await this.delay();
-    const category = this.categories.find(c => c.Id === parseInt(id));
-    return category ? { ...category } : null;
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error('ApperClient not available');
+      }
+
+      const response = await apperClient.getRecordById(this.tableName, parseInt(id), {
+        fields: [
+          {"field": {"Name": "Id"}},
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "color_c"}},
+          {"field": {"Name": "task_count_c"}}
+        ]
+      });
+
+      if (!response.success) {
+        console.error(response.message);
+        return null;
+      }
+
+      return response.data || null;
+    } catch (error) {
+      console.error(`Error fetching category ${id}:`, error?.response?.data?.message || error.message);
+      return null;
+    }
   }
 
   async create(categoryData) {
-    await this.delay();
-    const maxId = this.categories.length > 0 ? Math.max(...this.categories.map(c => c.Id)) : 0;
-    const newCategory = {
-      Id: maxId + 1,
-      name: categoryData.name,
-      color: categoryData.color || "#6366F1",
-      taskCount: 0
-    };
-    
-    this.categories.push(newCategory);
-    this.saveToStorage(this.categories);
-    return { ...newCategory };
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error('ApperClient not available');
+      }
+
+      const payload = {
+        records: [{
+          name_c: categoryData.name_c || categoryData.name,
+          color_c: categoryData.color_c || categoryData.color || "#6366F1",
+          task_count_c: 0
+        }]
+      };
+
+      const response = await apperClient.createRecord(this.tableName, payload);
+
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to create ${failed.length} category records:`, failed);
+          failed.forEach(record => {
+            record.errors?.forEach(error => toast.error(`${error.fieldLabel}: ${error}`));
+            if (record.message) toast.error(record.message);
+          });
+        }
+
+        if (successful.length > 0) {
+          toast.success("Category created successfully");
+          return successful[0].data;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error creating category:", error?.response?.data?.message || error.message);
+      toast.error("Failed to create category");
+      return null;
+    }
   }
 
   async update(id, categoryData) {
-    await this.delay();
-    const index = this.categories.findIndex(c => c.Id === parseInt(id));
-    if (index === -1) return null;
-    
-    const updatedCategory = {
-      ...this.categories[index],
-      ...categoryData,
-      Id: parseInt(id) // Ensure Id doesn't change
-    };
-    
-    this.categories[index] = updatedCategory;
-    this.saveToStorage(this.categories);
-    return { ...updatedCategory };
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error('ApperClient not available');
+      }
+
+      const payload = {
+        records: [{
+          Id: parseInt(id),
+          name_c: categoryData.name_c || categoryData.name,
+          color_c: categoryData.color_c || categoryData.color,
+          task_count_c: categoryData.task_count_c || categoryData.taskCount
+        }]
+      };
+
+      const response = await apperClient.updateRecord(this.tableName, payload);
+
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to update ${failed.length} category records:`, failed);
+          failed.forEach(record => {
+            record.errors?.forEach(error => toast.error(`${error.fieldLabel}: ${error}`));
+            if (record.message) toast.error(record.message);
+          });
+        }
+
+        if (successful.length > 0) {
+          toast.success("Category updated successfully");
+          return successful[0].data;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error updating category:", error?.response?.data?.message || error.message);
+      toast.error("Failed to update category");
+      return null;
+    }
   }
 
   async delete(id) {
-    await this.delay();
-    const index = this.categories.findIndex(c => c.Id === parseInt(id));
-    if (index === -1) return false;
-    
-    this.categories.splice(index, 1);
-    this.saveToStorage(this.categories);
-    return true;
+    try {
+      const apperClient = getApperClient();
+      if (!apperClient) {
+        throw new Error('ApperClient not available');
+      }
+
+      const response = await apperClient.deleteRecord(this.tableName, {
+        RecordIds: [parseInt(id)]
+      });
+
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return false;
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to delete ${failed.length} category records:`, failed);
+          failed.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+
+        if (successful.length > 0) {
+          toast.success("Category deleted successfully");
+          return true;
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Error deleting category:", error?.response?.data?.message || error.message);
+      toast.error("Failed to delete category");
+      return false;
+    }
   }
 
   async updateTaskCount(categoryName, count) {
-    await this.delay();
-    const category = this.categories.find(c => c.name === categoryName);
-    if (category) {
-      category.taskCount = count;
-      this.saveToStorage(this.categories);
-      return { ...category };
+    try {
+      // First find the category by name
+      const categories = await this.getAll();
+      const category = categories.find(c => (c.name_c || c.Name) === categoryName);
+      
+      if (!category) {
+        return null;
+      }
+
+      // Update the task count
+      const updatedCategory = await this.update(category.Id, {
+        task_count_c: count
+      });
+
+      return updatedCategory;
+    } catch (error) {
+      console.error("Error updating task count:", error?.response?.data?.message || error.message);
+      return null;
     }
-    return null;
   }
 }
 

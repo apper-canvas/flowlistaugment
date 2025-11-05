@@ -82,8 +82,8 @@ const CategorySidebar = ({
               {/* Categories */}
               {categories.map((category) => (
                 <button
-                  key={category.Id}
-                  onClick={() => onCategoryChange?.(category.name)}
+key={category.Id}
+                  onClick={() => onCategoryChange?.(category.name_c || category.name)}
                   className={cn(
                     "w-full p-3 rounded-xl transition-all duration-200 flex items-center justify-center",
                     selectedCategory === category.name 
@@ -91,12 +91,12 @@ const CategorySidebar = ({
                       : "text-gray-600 hover:bg-gray-100"
                   )}
                   style={{
-                    backgroundColor: selectedCategory === category.name ? category.color : undefined
+backgroundColor: selectedCategory === (category.name_c || category.name) ? (category.color_c || category.color) : undefined
                   }}
                 >
                   <div 
                     className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: category.color }}
+                    style={{ backgroundColor: (category.color_c || category.color) }}
                   />
                 </button>
               ))}

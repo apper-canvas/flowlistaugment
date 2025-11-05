@@ -16,7 +16,7 @@ const QuickAddForm = ({
   onToggleExpanded,
   ...props 
 }) => {
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     title: "",
     description: "",
     category: "Personal",
@@ -40,7 +40,7 @@ const QuickAddForm = ({
     try {
       await onAdd?.(formData);
       setFormData({
-        title: "",
+title: "",
         description: "",
         category: "Personal",
         priority: "medium"
@@ -100,7 +100,7 @@ const QuickAddForm = ({
           ref={titleInputRef}
           label="Task Title"
           placeholder="What needs to be done?"
-          value={formData.title}
+value={formData.title}
           onChange={(e) => handleChange("title", e.target.value)}
           onKeyDown={handleKeyDown}
           required
@@ -110,7 +110,7 @@ const QuickAddForm = ({
         <Textarea
           label="Description (optional)"
           placeholder="Add more details..."
-          value={formData.description}
+value={formData.description}
           onChange={(e) => handleChange("description", e.target.value)}
           onKeyDown={handleKeyDown}
           rows={2}
@@ -120,12 +120,12 @@ const QuickAddForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Select
             label="Category"
-            value={formData.category}
+value={formData.category}
             onChange={(e) => handleChange("category", e.target.value)}
           >
-            {categories.map((category) => (
-              <option key={category.Id} value={category.name}>
-                {category.name}
+{categories.map((category) => (
+              <option key={category.Id} value={category.name_c || category.name}>
+                {category.name_c || category.name}
               </option>
             ))}
           </Select>
@@ -135,7 +135,7 @@ const QuickAddForm = ({
               Priority
             </label>
             <PrioritySelector
-              value={formData.priority}
+value={formData.priority}
               onChange={(priority) => handleChange("priority", priority)}
             />
           </div>
@@ -160,7 +160,7 @@ const QuickAddForm = ({
             <Button
               type="submit"
               variant="primary"
-              disabled={!formData.title.trim() || isSubmitting}
+disabled={!formData.title.trim() || isSubmitting}
             >
               {isSubmitting ? (
                 <>

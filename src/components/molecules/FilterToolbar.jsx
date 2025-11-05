@@ -6,7 +6,7 @@ import CategoryPill from "@/components/molecules/CategoryPill";
 import Button from "@/components/atoms/Button";
 
 const FilterToolbar = ({ 
-  categories = [],
+categories = [],
   selectedCategory = "all",
   onCategoryChange,
   selectedPriority = "all",
@@ -32,19 +32,19 @@ const FilterToolbar = ({
         <h3 className="text-sm font-semibold text-gray-700 mb-3">Categories</h3>
         <div className="flex flex-wrap gap-2">
           <CategoryPill
-            name="All"
+name="All"
             count={activeTasksCount + completedTasksCount}
             active={selectedCategory === "all"}
             onClick={() => onCategoryChange?.("all")}
             color="#6366F1"
           />
           {categories.map((category) => (
-            <CategoryPill
+<CategoryPill
               key={category.Id}
-              name={category.name}
-              count={category.taskCount}
-              color={category.color}
-              active={selectedCategory === category.name}
+              name={category.name_c || category.name}
+              count={category.task_count_c || category.taskCount}
+              color={category.color_c || category.color}
+              active={selectedCategory === (category.name_c || category.name)}
               onClick={() => onCategoryChange?.(category.name)}
             />
           ))}
@@ -92,7 +92,7 @@ const FilterToolbar = ({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-gray-700">Completed Tasks</h3>
-            <p className="text-xs text-gray-500">{completedTasksCount} completed</p>
+<p className="text-xs text-gray-500">{completedTasksCount} completed</p>
           </div>
           
           <motion.button
@@ -117,10 +117,10 @@ const FilterToolbar = ({
       <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-3">
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-600">Active tasks:</span>
-          <span className="font-semibold text-gray-900">{activeTasksCount}</span>
+<span className="font-semibold text-gray-900">{activeTasksCount}</span>
         </div>
         <div className="flex items-center justify-between text-sm mt-1">
-          <span className="text-gray-600">Completed:</span>
+<span className="text-gray-600">Completed:</span>
           <span className="font-semibold text-success">{completedTasksCount}</span>
         </div>
       </div>

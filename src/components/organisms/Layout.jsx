@@ -42,13 +42,13 @@ const Layout = () => {
     setCategories(prevCategories => 
       prevCategories.map(category => ({
         ...category,
-        taskCount: tasksData.filter(task => task.category === category.name).length
+taskCount: tasksData.filter(task => (task.category_c || task.category) === (category.name_c || category.name)).length
       }))
     );
   };
 
-  const activeTasksCount = tasks.filter(task => !task.completed).length;
-  const completedTasksCount = tasks.filter(task => task.completed).length;
+const activeTasksCount = tasks.filter(task => !(task.completed_c || task.completed)).length;
+  const completedTasksCount = tasks.filter(task => (task.completed_c || task.completed)).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 flex">

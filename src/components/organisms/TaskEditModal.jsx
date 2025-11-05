@@ -30,10 +30,10 @@ const TaskEditModal = ({
   useEffect(() => {
     if (task) {
       setFormData({
-        title: task.title || "",
-        description: task.description || "",
-        category: task.category || "Personal",
-        priority: task.priority || "medium"
+title: (task.title_c || task.title) || "",
+        description: (task.description_c || task.description) || "",
+        category: (task.category_c || task.category) || "Personal",
+        priority: (task.priority_c || task.priority) || "medium"
       });
     }
   }, [task]);
@@ -164,8 +164,8 @@ const TaskEditModal = ({
                   value={formData.category}
                   onChange={(e) => handleChange("category", e.target.value)}
                 >
-                  {categories.map((category) => (
-                    <option key={category.Id} value={category.name}>
+{categories.map((category) => (
+                    <option key={category.Id} value={category.name_c || category.name}>
                       {category.name}
                     </option>
                   ))}
